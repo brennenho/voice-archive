@@ -1,10 +1,10 @@
-python3 -m venv venv
-source venv/bin/activate
+1. python3 -m venv venv
+2. source venv/bin/activate
 
 ## Packages
 
-pip install pdfkit
-pip install wkhtmltopdf
+1. pip install pdfkit
+2. pip install wkhtmltopdf
 
 ## Running
 1. python get-urls.py
