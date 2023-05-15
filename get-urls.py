@@ -45,9 +45,11 @@ def parse(url):
     #f.close()
 
 # open text file to write urls
-urls = open('urls.txt','a')
+# urls = open('urls.txt','a')
 
 for category in categories:
+    filename = category + '.txt'
+    urls = open(filename, 'a')
     print(category)
     counter = 1
     
@@ -72,5 +74,7 @@ for category in categories:
                 print(e)
                 break
         counter += 1
+    
+    urls.close()
 
-urls.close()
+#urls.close()

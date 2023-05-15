@@ -1,11 +1,13 @@
 import pdfkit
 from urllib.request import Request, urlopen
 import shutil
+import pickle
 
 # Used for naming files
 monthsToDigits = {'January':'01', 'February':'02', 'March':'03', 'April':'04', 'May':'05', 'June':'06', 'July':'07', 'August':'08', 'September':'09', 'October':'10', 'November':'11', 'December':'12'}
 
 # Generate a PDF from a URL
+
 def generate_pdf(url, date, count):
 
     # Generate filename
@@ -21,7 +23,7 @@ def generate_pdf(url, date, count):
         pass
 
     # Move PDF to subdirectory
-    shutil.move(filename + '.pdf', 'pdfs/' + filename + '.pdf')
+    shutil.move(filename + '.pdf', 'pdfs/' + date[:4] + '/' + filename + '.pdf')
 
 
 def get_date(url):
@@ -52,23 +54,51 @@ def get_date(url):
     return False
 
 # global dictionary with number of articles published per day
+db = open('dates.pkl', 'rb')
 dates = {}
+try:
+    dates = pickle.load(db)
+except Exception as e:
+    if "Ran out of input" in str(e):
+        dates = {}
+    else:
+        print("ERROR:" + e)
+db.close()
 
+category = "sports" # CHANGE CATEGORY HERE
+#filename = "links/" + category + ".txt"
+
+filename = 'links/urls.txt'
 
 # generate PDF for each URL
-f = open('urls.txt','r')
+f = open(filename,'r')
 
 for line in f:
     line = line.strip()
     date = get_date(line) # date published
 
-    # check if there has already been articles published
-    if date != False:
-        if dates.get(date):
-            dates[date] = dates[date] + 1
-        else:
-            dates[date] = 1
+    try:
 
-    generate_pdf(line, date, dates[date])
+        # check if there has already been articles published
+        if date != False:
+            if dates.get(date):
+                dates[date] = dates[date] + 1
+            else:
+                dates[date] = 1
+
+        print(line)
+        generate_pdf(line, date, dates[date])
+        db = open('dates.pkl', 'wb')
+        pickle.dump(dates, db)
+        db.close()
+        print("[SUCCESS]: Dates saved successfully")
+    except:
+        print("[ERROR]: " + line)
+        failed = open("failed.txt", 'a')
+        failed.write(line)
+        failed.close()
+
+print("[COMPLETE]")
+
 
 f.close()
