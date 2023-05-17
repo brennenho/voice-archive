@@ -13,6 +13,7 @@ def parse(url):
 
     # read website code from specified url
     req = Request(url=url, headers={'User-Agent': 'Mozilla/5.0'})
+
     # split code by "<" into a list
     webpage = str(urlopen(req).read()).split('<')
 
@@ -44,12 +45,15 @@ def parse(url):
     #f.write(str(webpage))
     #f.close()
 
-# open text file to write urls
-# urls = open('urls.txt','a')
+# Comment line below if you want all links to be stored in a single file
+urls = open('urls.txt','a')
 
 for category in categories:
-    filename = category + '.txt'
-    urls = open(filename, 'a')
+
+    # Unomment both lines below if you want each category to be stored in a separate file
+    # filename = category + '.txt'
+    # urls = open(filename, 'a')
+
     print(category)
     counter = 1
     
@@ -75,6 +79,7 @@ for category in categories:
                 break
         counter += 1
     
-    urls.close()
+    # Uncomment line below if you want each category to be stored in a separate file
+    #urls.close()
 
-#urls.close()
+urls.close()

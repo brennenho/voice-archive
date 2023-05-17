@@ -16,8 +16,7 @@ def generate_pdf(url, date, count):
     try:
         # Generate PDF from URL
         pdfkit.from_url(url + "?print=true", filename + '.pdf')
-        
-        #pdfkit.from_url(url, filename + '.pdf')
+
     except:
         # Catch error from PDFKit
         pass
@@ -29,11 +28,8 @@ def generate_pdf(url, date, count):
 def get_date(url):
     # read website code from specified url
     req = Request(url=url, headers={'User-Agent': 'Mozilla/5.0'})
-    # split code by "{" into a list
+    # split code by "<" into a list
     webpage = str(urlopen(req).read()).split('<')
-    # f = open('html.txt','w')
-    # f.write(str(webpage))
-    # f.close()
 
     # for every value in list
     for s in webpage:
@@ -53,32 +49,44 @@ def get_date(url):
 
     return False
 
-# global dictionary with number of articles published per day
+# open backed-up database file -> used if program crashes
 db = open('dates.pkl', 'rb')
+
+# global dictionary with number of articles published per day
 dates = {}
 try:
+    # attempt to load backed-up database
     dates = pickle.load(db)
 except Exception as e:
+    # if there is nothing in the database file, set the database to empty
     if "Ran out of input" in str(e):
         dates = {}
     else:
+        # There was an error in importing the previous database
         print("ERROR:" + e)
+
+# close database back-up file
 db.close()
 
-category = "sports" # CHANGE CATEGORY HERE
-#filename = "links/" + category + ".txt"
 
+# Uncomment the lines below if backing up category-by-category
+# category = "sports" # CHANGE CATEGORY HERE if backing up category-by-category
+# filename = "links/" + category + ".txt"
+
+# Comment line below if backing up category-by-category
 filename = 'links/urls.txt'
 
-# generate PDF for each URL
+# open file with urls
 f = open(filename,'r')
 
+# iterate through each line in the url file
 for line in f:
+    # strip whitespace
     line = line.strip()
-    date = get_date(line) # date published
+    # get the data published
+    date = get_date(line)
 
     try:
-
         # check if there has already been articles published
         if date != False:
             if dates.get(date):
@@ -87,18 +95,25 @@ for line in f:
                 dates[date] = 1
 
         print(line)
+        # call function to generate pdf from url
         generate_pdf(line, date, dates[date])
+
+        # backup date database immediately after generating a url in the case of a crash
         db = open('dates.pkl', 'wb')
         pickle.dump(dates, db)
         db.close()
+
+        # iteration successful
         print("[SUCCESS]: Dates saved successfully")
     except:
         print("[ERROR]: " + line)
+
+        # store failed url in a separate file to assist debugging and re-running
         failed = open("failed.txt", 'a')
         failed.write(line)
         failed.close()
 
-print("[COMPLETE]")
+print("PROGRAM COMPLETE")
 
 
 f.close()
